@@ -1,0 +1,61 @@
+﻿@model List<RecipeSuggestion>
+
+@{
+    ViewData["Title"] = "NutriSuggest – Suggestions";
+}
+
+<h2>Recipe Suggestions</h2>
+
+<div class="row">
+    @foreach (var recipe in Model)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">@recipe.Title</h5>
+
+                    <p><strong>Ingredients:</strong></p>
+                    <ul>
+                        @foreach (var ing in recipe.Ingredients)
+                        {
+                            <li>@ing</li>
+                        }
+                    </ul>
+
+                    <p><strong>Instructions:</strong></p>
+                    <ol>
+                        @foreach (var step in recipe.Instructions)
+                        {
+                            <li>@step</li>
+                        }
+                    </ol>
+
+                    <div class="mt-3">
+                        <!-- Rating form -->
+                        <form asp-controller="MealPlanner" asp-action="Rate" method="post" class="d-inline">
+                            <input type="hidden" name="title" value="@recipe.Title" />
+                            <label class="me-2">
+                                Rate:
+                                <select name="rating" class="form-select d-inline w-auto">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </select>
+                            </label>
+                            <button type="submit" class="btn btn-success ms-2">Submit Rating</button>
+                        </form>
+
+                        <!-- Favorite button (no auth needed) -->
+                        <form asp-controller="MealPlanner" asp-action="Favorite" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="title" value="@recipe.Title" />
+                            <button type="submit" class="btn btn-outline-warning">
+                                ⭐ Favorite
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

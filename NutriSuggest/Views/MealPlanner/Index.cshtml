@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "NutriSuggest – Meal Planner";
+}
+
+<h2>NutriSuggest</h2>
+
+<form asp-action="Suggest" asp-controller="MealPlanner" method="post">
+    <div class="mb-3">
+        <label class="form-label">Ingredients</label>
+        <div id="ingredients-list">
+            <input 
+                type="text" 
+                name="ingredients" 
+                class="form-control mb-2" 
+                placeholder="e.g. chicken" />
+        </div>
+        <button 
+            type="button" 
+            id="add-ingredient" 
+            class="btn btn-secondary btn-sm">
+            + Add Another Ingredient
+        </button>
+    </div>
+
+    <div class="form-check mb-3">
+        <input 
+            class="form-check-input" 
+            type="checkbox" 
+            name="vegetarian" 
+            value="true" 
+            id="vegetarianCheckbox" />
+        <label 
+            class="form-check-label" 
+            for="vegetarianCheckbox">
+            Vegetarian
+        </label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input 
+            class="form-check-input" 
+            type="checkbox" 
+            name="glutenFree" 
+            value="true" 
+            id="glutenFreeCheckbox" />
+        <label 
+            class="form-check-label" 
+            for="glutenFreeCheckbox">
+            Gluten-Free
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Suggest Recipes
+    </button>
+</form>
+
+@section Scripts {
+    <script>
+        document
+          .getElementById('add-ingredient')
+          .addEventListener('click', function() {
+            var container = document.getElementById('ingredients-list');
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'ingredients';
+            input.className = 'form-control mb-2';
+            input.placeholder = 'e.g. tomatoes';
+            container.appendChild(input);
+        });
+    </script>
+}
