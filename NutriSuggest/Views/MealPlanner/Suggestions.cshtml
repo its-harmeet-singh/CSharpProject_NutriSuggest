@@ -1,61 +1,205 @@
-﻿@model List<RecipeSuggestion>
+﻿@using System.Text.Json
+@model List<RecipeSuggestion>
 
 @{
-    ViewData["Title"] = "NutriSuggest – Suggestions";
+    ViewData["Title"] = "Recipe Suggestions";
+    bool veg = ViewBag.IsVegetarian as bool? ?? false;
+    bool gf = ViewBag.IsGlutenFree as bool? ?? false;
 }
 
-<h2>Recipe Suggestions</h2>
+<style>
+    body {
+        background-color: #f9f9fc;
+    }
 
-<div class="row">
-    @foreach (var recipe in Model)
-    {
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">@recipe.Title</h5>
+    .card {
+        border: none;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-                    <p><strong>Ingredients:</strong></p>
-                    <ul>
-                        @foreach (var ing in recipe.Ingredients)
-                        {
-                            <li>@ing</li>
-                        }
-                    </ul>
+    .card-title {
+        color: #2c7be5;
+    }
 
-                    <p><strong>Instructions:</strong></p>
-                    <ol>
-                        @foreach (var step in recipe.Instructions)
-                        {
-                            <li>@step</li>
-                        }
-                    </ol>
+    .sub-btn {
+        border: 1px solid #2c7be5;
+        background-color: #e9f1ff;
+        color: #2c7be5;
+        transition: all 0.2s ease-in-out;
+    }
 
-                    <div class="mt-3">
-                        <!-- Rating form -->
-                        <form asp-controller="MealPlanner" asp-action="Rate" method="post" class="d-inline">
-                            <input type="hidden" name="title" value="@recipe.Title" />
-                            <label class="me-2">
-                                Rate:
-                                <select name="rating" class="form-select d-inline w-auto">
+    .sub-btn:hover {
+        background-color: #2c7be5;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #3ac47d;
+        border: none;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border: none;
+        color: #212529;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    ol {
+        padding-left: 1.5rem;
+    }
+
+    .section-heading {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #495057;
+    }
+
+    .container {
+        max-width: 1200px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="section-heading">🍽️ Recipe Suggestions</h1>
+        <p class="text-muted">Click the 🔄 button to get ingredient substitutions based on your preferences.</p>
+    </div>
+
+    <div class="row">
+        @foreach (var recipe in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@recipe.Title</h5>
+
+                        <p class="fw-semibold mb-1">Ingredients:</p>
+                        <ul class="list-unstyled">
+                            @foreach (var ing in recipe.Ingredients)
+                            {
+                                <li class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="ingredient-text">@ing</span>
+                                    <button type="button"
+                                            class="btn btn-sm sub-btn"
+                                            data-ingredient="@ing"
+                                            data-vegetarian="@veg"
+                                            data-glutenfree="@gf"
+                                            title="Find substitutes">
+                                        🔄
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+
+                        <p class="fw-semibold mt-3">Instructions:</p>
+                        <ol>
+                            @foreach (var step in recipe.Instructions)
+                            {
+                                <li>@step</li>
+                            }
+                        </ol>
+
+                        <div class="mt-4 d-flex flex-wrap gap-2">
+                            <form asp-action="Rate" method="post" class="d-flex align-items-center gap-2">
+                                <input type="hidden" name="title" value="@recipe.Title" />
+                                <select name="rating" class="form-select form-select-sm w-auto">
                                     @for (int i = 1; i <= 5; i++)
                                     {
                                         <option value="@i">@i</option>
                                     }
                                 </select>
-                            </label>
-                            <button type="submit" class="btn btn-success ms-2">Submit Rating</button>
-                        </form>
+                                <button type="submit" class="btn btn-success btn-sm">Submit Rating</button>
+                            </form>
 
-                        <!-- Favorite button (no auth needed) -->
-                        <form asp-controller="MealPlanner" asp-action="Favorite" method="post" class="d-inline ms-2">
-                            <input type="hidden" name="title" value="@recipe.Title" />
-                            <button type="submit" class="btn btn-outline-warning">
-                                ⭐ Favorite
-                            </button>
-                        </form>
+                            <form asp-action="Favorite" method="post">
+                                <input type="hidden" name="recipeTitle" value="@recipe.Title" />
+                                <input type="hidden" name="ingredientsJson" value="@JsonSerializer.Serialize(recipe.Ingredients)" />
+                                <input type="hidden" name="instructionsJson" value="@JsonSerializer.Serialize(recipe.Instructions)" />
+                                <button type="submit" class="btn btn-warning btn-sm">⭐ Add to Favorites</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
+
+<!-- Substitute Modal -->
+<div class="modal fade" id="subModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary">
+                    Substitute for <span id="subModalIngredient" class="fw-bold"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="subModalList" class="list-group"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function escapeRegExp(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        document.querySelectorAll('.sub-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const original = btn.dataset.ingredient;
+                const veg = btn.dataset.vegetarian;
+                const gf = btn.dataset.glutenfree;
+
+                const resp = await fetch(`/MealPlanner/SubstitutesJson?ingredient=${encodeURIComponent(original)}&vegetarian=${veg}&glutenFree=${gf}`);
+                const subs = await resp.json();
+
+                document.getElementById('subModalIngredient').textContent = original;
+                const list = document.getElementById('subModalList');
+                list.innerHTML = '';
+
+                if (!subs.length) {
+                    list.innerHTML = `<div class="alert alert-warning">No substitutes found.</div>`;
+                } else {
+                    subs.forEach(sub => {
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.textContent = sub;
+
+                        item.addEventListener('click', () => {
+                            const card = btn.closest('.card-body');
+                            const re = new RegExp('\\b' + escapeRegExp(original) + '\\b', 'gi');
+
+                            const titleEl = card.querySelector('.card-title');
+                            titleEl.textContent = titleEl.textContent.replace(re, sub);
+
+                            card.querySelectorAll('.ingredient-text').forEach(span => {
+                                span.textContent = span.textContent.replace(re, sub);
+                            });
+
+                            card.querySelectorAll('ol li').forEach(li => {
+                                li.textContent = li.textContent.replace(re, sub);
+                            });
+
+                            bootstrap.Modal.getInstance(document.getElementById('subModal')).hide();
+                        });
+
+                        list.appendChild(item);
+                    });
+                }
+
+                new bootstrap.Modal(document.getElementById('subModal')).show();
+            });
+        });
+    </script>
+}

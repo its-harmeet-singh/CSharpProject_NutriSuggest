@@ -1,0 +1,67 @@
+﻿@model List<NutriSuggest.Models.UserHistory>
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "History";
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center text-info fw-bold">📜 Your Meal Input History</h2>
+
+    @if (Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var item in Model)
+            {
+                var ingredients = JsonSerializer.Deserialize<List<string>>(item.IngredientsJson) ?? new List<string>();
+
+                <div class="col">
+                    <div class="card shadow h-100 border-0">
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-2">
+                                <h5 class="card-title text-primary">@item.Title</h5>
+                                <p class="mb-2"><strong>Ingredients:</strong></p>
+                                <ul class="list-unstyled">
+                                    @foreach (var ing in ingredients)
+                                    {
+                                        <li>• @ing</li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="mt-auto">
+                                <p class="text-muted mb-3">
+                                    <small>
+                                        <i class="bi bi-clock-history"></i>
+                                        @item.CreatedAt.ToLocalTime().ToString("f")
+                                    </small>
+                                </p>
+
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="LoadFromHistory"
+                                       asp-controller="MealPlanner"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-success">
+                                        🔄 Load
+                                    </a>
+
+                                    <form asp-action="DeleteHistory" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            🗑️ Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center">
+            <i class="bi bi-exclamation-circle"></i> No history found. Start planning your meals to see entries here!
+        </div>
+    }
+</div>

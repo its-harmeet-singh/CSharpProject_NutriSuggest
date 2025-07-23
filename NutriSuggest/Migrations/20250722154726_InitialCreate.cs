@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NutriSuggest.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentityAndFavorites : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -165,6 +165,9 @@ namespace NutriSuggest.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RecipeTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IngredientsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InstructionsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FavoritedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -172,6 +175,27 @@ namespace NutriSuggest.Migrations
                     table.PrimaryKey("PK_FavoriteRecipes", x => x.Id);
                     table.ForeignKey(
                         name: "FK_FavoriteRecipes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RecipeRatings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RecipeTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecipeRatings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RecipeRatings_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -221,6 +245,11 @@ namespace NutriSuggest.Migrations
                 name: "IX_FavoriteRecipes_UserId",
                 table: "FavoriteRecipes",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecipeRatings_UserId",
+                table: "RecipeRatings",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -243,6 +272,9 @@ namespace NutriSuggest.Migrations
 
             migrationBuilder.DropTable(
                 name: "FavoriteRecipes");
+
+            migrationBuilder.DropTable(
+                name: "RecipeRatings");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

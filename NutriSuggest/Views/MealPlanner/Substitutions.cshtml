@@ -1,0 +1,50 @@
+﻿@model List<string>
+
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = $"Choose a Substitute for {ViewBag.OriginalIngredient}";
+    var original = (string)ViewBag.OriginalIngredient;
+    var ingredientsJson = (string)ViewBag.IngredientsJson;
+    bool veg = (bool)ViewBag.IsVegetarian;
+    bool gf = (bool)ViewBag.IsGlutenFree;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">
+        No substitutes found for “@original”.
+
+    </div>
+}
+else
+{
+    <ul class="list-group mb-3">
+        @foreach (var sub in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @sub
+                <form asp-action="ReplaceIngredient" method="post" class="mb-0">
+                    <input type="hidden" name="original" value="@original" />
+                    <input type="hidden" name="replacement" value="@sub" />
+                    <input type="hidden" name="ingredientsJson" value="@ingredientsJson" />
+                    <input type="hidden" name="vegetarian" value="@veg" />
+                    <input type="hidden" name="glutenFree" value="@gf" />
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        Use this
+                    </button>
+                </form>
+            </li>
+        }
+    </ul>
+}
+
+<a asp-action="Suggest"
+   asp-route-ingredients="@(JsonSerializer.Deserialize<List<string>>(ingredientsJson))"
+   asp-route-vegetarian="@veg"
+   asp-route-glutenFree="@gf"
+   class="btn btn-secondary">
+    ← Back to Suggestions
+</a>

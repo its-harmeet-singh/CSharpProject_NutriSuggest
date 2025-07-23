@@ -60,5 +60,45 @@ namespace NutriSuggest.Services
             return JsonSerializer.Deserialize<List<RecipeSuggestion>>(json)
                    ?? new List<RecipeSuggestion>();
         }
+
+        public async Task<List<string>> SuggestSubstitutesAsync(
+    string ingredient,
+    bool vegetarian,
+    bool glutenFree)
+        {
+            // 1) Build your messages
+            var messages = new List<ChatMessage>
+    {
+        new SystemChatMessage(
+            "You are a cooking assistant that responds ONLY with a JSON array.  " +
+            "Do NOT output any explanatory text—just the raw JSON array."
+        ),
+        new UserChatMessage(
+            $"Ingredient: {ingredient}. " +
+            $"Vegetarian: {(vegetarian ? "yes" : "no")}, " +
+            $"Gluten-free: {(glutenFree ? "yes" : "no")}. " +
+            "Return ONLY JSON: an array of up to 5 substitute ingredients as strings."
+        )
+    };
+
+            // 2) Send to OpenAI
+            ChatCompletion completion = await _chatClient.CompleteChatAsync(messages);
+
+            // 3) Extract the assistant’s reply exactly as before
+            string raw = completion.Content[0].Text?.Trim() ?? "";
+
+            // 4) Snip the JSON array out
+            int start = raw.IndexOf('[');
+            int end = raw.LastIndexOf(']') + 1;
+            string json = (start >= 0 && end > start)
+                ? raw[start..end]
+                : raw;
+
+            // 5) Deserialize
+            return JsonSerializer.Deserialize<List<string>>(json)
+                   ?? new List<string>();
+        }
+
+
     }
 }

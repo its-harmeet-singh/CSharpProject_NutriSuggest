@@ -1,72 +1,127 @@
-﻿@{
+﻿@using NutriSuggest.Data
+@using NutriSuggest.Models
+@using Microsoft.EntityFrameworkCore
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext Db
+@{
     ViewData["Title"] = "NutriSuggest – Meal Planner";
+
+    var ingredientsJson = TempData["IngredientsJson"] as string;
+    var ingredients = !string.IsNullOrEmpty(ingredientsJson)
+        ? System.Text.Json.JsonSerializer.Deserialize<List<string>>(ingredientsJson)
+        : new List<string> { "" };
+
+    var user = await UserManager.GetUserAsync(User);
+    var histories = user != null
+        ? await Db.UserHistories
+            .Where(h => h.UserEmail == user.Email)
+            .OrderByDescending(h => h.CreatedAt)
+            .Take(5)
+            .ToListAsync()
+        : new List<UserHistory>();
 }
 
-<h2>NutriSuggest</h2>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">🍽️ NutriSuggest</h1>
+        <p class="lead text-muted">Get healthy meal ideas based on what you already have!</p>
+    </div>
 
-<form asp-action="Suggest" asp-controller="MealPlanner" method="post">
-    <div class="mb-3">
-        <label class="form-label">Ingredients</label>
-        <div id="ingredients-list">
-            <input 
-                type="text" 
-                name="ingredients" 
-                class="form-control mb-2" 
-                placeholder="e.g. chicken" />
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+                    <form asp-action="SuggestPost" asp-controller="MealPlanner" method="post">
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Ingredients</label>
+                            <div id="ingredients-list">
+                                @for (int i = 0; i < ingredients.Count; i++)
+                                {
+                                    <input type="text"
+                                           name="ingredients"
+                                           value="@ingredients[i]"
+                                           class="form-control mb-2"
+                                           placeholder="e.g. chicken" />
+                                }
+                            </div>
+                            <button type="button"
+                                    id="add-ingredient"
+                                    class="btn btn-outline-secondary btn-sm mt-2">
+                                + Add Another Ingredient
+                            </button>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="vegetarian"
+                                   value="true"
+                                   id="vegetarianCheckbox" />
+                            <label class="form-check-label" for="vegetarianCheckbox">
+                                Vegetarian
+                            </label>
+                        </div>
+
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="glutenFree"
+                                   value="true"
+                                   id="glutenFreeCheckbox" />
+                            <label class="form-check-label" for="glutenFreeCheckbox">
+                                Gluten-Free
+                            </label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg shadow">
+                                🔍 Suggest Recipes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (histories.Any())
+            {
+                <div class="card mt-4">
+                    <div class="card-header fw-semibold">📜 Load From History</div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var h in histories)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>@h.Title</span>
+                                <a asp-action="LoadFromHistory"
+                                   asp-controller="MealPlanner"
+                                   asp-route-id="@h.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Load
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="text-center mt-4">
+                <small class="text-muted">Powered by AI • Personalized Meal Planning</small>
+            </div>
         </div>
-        <button 
-            type="button" 
-            id="add-ingredient" 
-            class="btn btn-secondary btn-sm">
-            + Add Another Ingredient
-        </button>
     </div>
-
-    <div class="form-check mb-3">
-        <input 
-            class="form-check-input" 
-            type="checkbox" 
-            name="vegetarian" 
-            value="true" 
-            id="vegetarianCheckbox" />
-        <label 
-            class="form-check-label" 
-            for="vegetarianCheckbox">
-            Vegetarian
-        </label>
-    </div>
-
-    <div class="form-check mb-3">
-        <input 
-            class="form-check-input" 
-            type="checkbox" 
-            name="glutenFree" 
-            value="true" 
-            id="glutenFreeCheckbox" />
-        <label 
-            class="form-check-label" 
-            for="glutenFreeCheckbox">
-            Gluten-Free
-        </label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-        Suggest Recipes
-    </button>
-</form>
+</div>
 
 @section Scripts {
     <script>
         document
-          .getElementById('add-ingredient')
-          .addEventListener('click', function() {
-            var container = document.getElementById('ingredients-list');
-            var input = document.createElement('input');
-            input.type = 'text';
-            input.name = 'ingredients';
-            input.className = 'form-control mb-2';
-            input.placeholder = 'e.g. tomatoes';
-            container.appendChild(input);
-        });
+            .getElementById('add-ingredient')
+            .addEventListener('click', function () {
+                var container = document.getElementById('ingredients-list');
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.name = 'ingredients';
+                input.className = 'form-control mb-2';
+                input.placeholder = 'e.g. tomatoes';
+                container.appendChild(input);
+            });
     </script>
 }

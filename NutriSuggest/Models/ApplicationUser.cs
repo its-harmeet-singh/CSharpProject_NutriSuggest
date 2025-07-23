@@ -1,26 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace NutriSuggest.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        // Dietary flags:
+        // Personalized tastes:
         public bool IsVegetarian { get; set; }
         public bool IsGlutenFree { get; set; }
 
-        // Navigation:
+        // Favorites navigation:
         public ICollection<FavoriteRecipe> Favorites { get; set; } = new List<FavoriteRecipe>();
-    }
-
-    public class FavoriteRecipe
-    {
-        public int Id { get; set; }
-        [Required]
-        public string RecipeTitle { get; set; } = string.Empty;
-
-        // FK back to user
-        public string UserId { get; set; } = string.Empty;
-        public ApplicationUser? User { get; set; }
     }
 }

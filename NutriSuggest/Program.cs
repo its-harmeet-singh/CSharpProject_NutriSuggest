@@ -1,38 +1,47 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NutriSuggest.Data;
+using NutriSuggest.Models;
 using NutriSuggest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. EF Core DbContext
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// EF Core + Identity
+builder.Services.AddDbContext<ApplicationDbContext>(opts =>
+    opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. ChatGPT wrapper
+builder.Services.AddDefaultIdentity<ApplicationUser>(opts =>
+{
+    opts.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>();
+
+// ChatGPT wrapper
 builder.Services.AddSingleton<ChatGptService>();
 
-// 3. MVC
+// MVC + Identity UI
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// 4. Middleware pipeline
+// Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
-// 5. No authentication/authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
-// 6. Map default route to MealPlannerController
+// Routes
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=MealPlanner}/{action=Index}/{id?}");
+  name: "default",
+  pattern: "{controller=MealPlanner}/{action=Index}/{id?}");
+app.MapRazorPages();  // for /Identity/Account/Login etc.
 
 app.Run();

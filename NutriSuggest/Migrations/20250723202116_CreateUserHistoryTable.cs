@@ -1,27 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace NutriSuggest.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class CreateUserHistoryTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "RecipeRatings",
+                name: "UserHistories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RecipeTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false)
+                    UserEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IngredientsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RecipeRatings", x => x.Id);
+                    table.PrimaryKey("PK_UserHistories", x => x.Id);
                 });
         }
 
@@ -29,7 +32,7 @@ namespace NutriSuggest.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RecipeRatings");
+                name: "UserHistories");
         }
     }
 }

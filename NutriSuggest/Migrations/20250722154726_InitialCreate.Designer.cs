@@ -12,8 +12,8 @@ using NutriSuggest.Data;
 namespace NutriSuggest.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250620035937_AddIdentityAndFavorites")]
-    partial class AddIdentityAndFavorites
+    [Migration("20250722154726_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -241,6 +241,17 @@ namespace NutriSuggest.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("FavoritedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IngredientsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstructionsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RecipeTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -269,10 +280,15 @@ namespace NutriSuggest.Migrations
 
                     b.Property<string>("RecipeTitle")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("RecipeRatings");
                 });
@@ -332,6 +348,17 @@ namespace NutriSuggest.Migrations
                 {
                     b.HasOne("NutriSuggest.Models.ApplicationUser", "User")
                         .WithMany("Favorites")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NutriSuggest.Models.RecipeRating", b =>
+                {
+                    b.HasOne("NutriSuggest.Models.ApplicationUser", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
