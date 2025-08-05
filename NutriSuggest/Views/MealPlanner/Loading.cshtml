@@ -12,11 +12,42 @@
 <div class="container text-center py-5">
     <img src="/images/chef-cooking.gif" alt="Cooking..." style="width:200px; height:auto;" />
     <h2 class="mt-3 text-muted">Our chef is busy preparing your recipe... 🍳</h2>
-    <p>Please hold on, the magic is happening!</p>
+    <p id="loading-text" class="fw-semibold text-secondary"></p>
 </div>
 
 <script>
+            const messages = [
+        "Please hold on, the magic is happening! ✨",
+        "Convincing the veggies to cooperate... 🥕",
+        "Heating up the drama in the pan... 🍳",
+        "Mixing in a dash of chaos... 🧂",
+        "Having a serious talk with the pasta... 🍝",
+        "Tasting for perfection (and maybe snacking)... 👨‍🍳",
+        "Arguing with the oven about the temperature... 🔥",
+        "Chasing runaway onions... 🧅",
+        "Almost ready to serve... if the chef stops dancing... 💃",
+        "Sprinkling love and a bit too much cheese... 🧀"
+    ];
+
+    let index = 0;
+    const textElement = document.getElementById("loading-text");
+
+    function changeMessage() {
+        if (index < messages.length) {
+            textElement.textContent = messages[index];
+            index++;
+        }
+    }
+
+    changeMessage();
+    const messageInterval = setInterval(() => {
+        changeMessage();
+        if (index >= messages.length) {
+            clearInterval(messageInterval);
+        }
+    }, 1500);
+
     setTimeout(function () {
         window.location.href = "@ViewBag.RedirectUrl";
-    }, 3000); 
+    }, 3000);
 </script>

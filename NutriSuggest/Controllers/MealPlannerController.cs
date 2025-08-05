@@ -44,6 +44,10 @@ namespace NutriSuggest.Controllers
     bool vegetarian,
     bool glutenFree)
         {
+            TempData["IngredientsJson"] = JsonSerializer.Serialize(ingredients);
+            TempData["Vegetarian"] = vegetarian;
+            TempData["GlutenFree"] = glutenFree;
+
             // Create a redirect URL for the Suggest action
             ViewBag.RedirectUrl = Url.Action(nameof(Suggest), new
             {
@@ -57,14 +61,15 @@ namespace NutriSuggest.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Suggest(
-     List<string> ingredients,
-     bool vegetarian,
-     bool glutenFree)
+        public async Task<IActionResult> Suggest()
         {
-            ViewBag.IsVegetarian = vegetarian;
-            ViewBag.IsGlutenFree = glutenFree;
-            ViewBag.Ingredients = ingredients;
+            var ingredientsJson = TempData["IngredientsJson"] as string;
+            var ingredients = string.IsNullOrEmpty(ingredientsJson)
+                ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(ingredientsJson);
+
+            bool vegetarian = TempData.ContainsKey("Vegetarian") && (bool)TempData["Vegetarian"];
+            bool glutenFree = TempData.ContainsKey("GlutenFree") && (bool)TempData["GlutenFree"];
 
             // Get recipe suggestions from ChatGPT service
             var suggestions = await _chat.SuggestRecipesAsync(
@@ -314,6 +319,24 @@ namespace NutriSuggest.Controllers
 
             TempData["IngredientsJson"] = JsonSerializer.Serialize(ingredients);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteHistory(int id)
+        {
+            var user = await _userManager.GetUserAsync(User)
+                       ?? throw new InvalidOperationException("User not found");
+
+            var history = await _db.UserHistories
+                .FirstOrDefaultAsync(h => h.Id == id && h.UserEmail == user.Email);
+
+            if (history != null)
+            {
+                _db.UserHistories.Remove(history);
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(History));
         }
 
 
