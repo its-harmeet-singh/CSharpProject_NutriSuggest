@@ -40,13 +40,20 @@ namespace NutriSuggest.Controllers
         // POST: /MealPlanner/SuggestPost  (PRG pattern)
         [HttpPost]
         public IActionResult SuggestPost(
-            List<string> ingredients,
-            bool vegetarian,
-            bool glutenFree)
+    List<string> ingredients,
+    bool vegetarian,
+    bool glutenFree)
         {
-            return RedirectToAction(
-                nameof(Suggest),
-                new { ingredients, vegetarian, glutenFree });
+            // Create a redirect URL for the Suggest action
+            ViewBag.RedirectUrl = Url.Action(nameof(Suggest), new
+            {
+                ingredients,
+                vegetarian,
+                glutenFree
+            });
+
+            // Return the loading view instead of immediately redirecting
+            return View("Loading");
         }
 
         [HttpGet]

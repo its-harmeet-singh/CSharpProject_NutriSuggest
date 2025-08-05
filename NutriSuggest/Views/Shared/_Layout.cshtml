@@ -11,57 +11,62 @@
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(90deg, rgba(27,143,58,0.95) 0%, rgba(80,200,120,0.9) 75%, rgba(228,239,233,1) 100%);;">
             <div class="container">
-                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
-                    🍽️ NutriSuggest
+                <!-- Brand -->
+                <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="MealPlanner" asp-action="Index">
+                    🍽️ <span class="ms-2">NutriSuggest</span>
                 </a>
 
+                <!-- Toggler -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
                         aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                <!-- Menu Items -->
                 <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="MealPlanner" asp-action="Index">Meal Planner</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active fw-bold" : "")"
+                               asp-controller="MealPlanner" asp-action="Index">Meal Planner</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="MealPlanner" asp-action="MyFavorites">My Favorites</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MyFavorites" ? "active fw-bold" : "")"
+                               asp-controller="MealPlanner" asp-action="MyFavorites">My Favorites</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="MealPlanner" asp-action="Index">My Cookbook</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "CookBook" ? "active fw-bold" : "")"
+                               asp-controller="CookBook" asp-action="Index">My Cookbook</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="MealPlanner" asp-action="History">History</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "active fw-bold" : "")"
+                               asp-controller="MealPlanner" asp-action="History">History</a>
                         </li>
-
                     </ul>
 
-                    <ul class="navbar-nav ms-auto">
+                    <!-- Right Side -->
+                    <ul class="navbar-nav ms-auto align-items-center">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
+                            <li class="nav-item me-3 d-flex align-items-center text-white">
+                                <i class="bi bi-person-circle fs-5 me-1"></i>
                                 @{
                                     var email = User.Identity?.Name;
                                     var username = email?.Split('@')[0];
                                 }
-                                <span class="navbar-text me-2 text-muted">
-                                    Hello, @username!
-                                </span>
-
+                                Hello, @username!
                             </li>
                             <li class="nav-item">
                                 <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                                    <button type="submit" class="btn btn-sm btn-light fw-semibold">Logout</button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn btn-sm btn-outline-primary" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                                <a class="btn btn-sm btn-light fw-semibold" asp-area="Identity" asp-page="/Account/Login">Login</a>
                             </li>
                         }
                     </ul>

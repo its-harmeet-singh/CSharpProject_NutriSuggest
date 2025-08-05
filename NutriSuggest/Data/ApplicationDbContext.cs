@@ -14,5 +14,7 @@ namespace NutriSuggest.Data
         public DbSet<FavoriteRecipe> FavoriteRecipes { get; set; }
 
         public DbSet<UserHistory> UserHistories { get; set; }
+        public DbSet<CookBookRecipe> CookBookRecipes { get; set; }
+
     }
 }

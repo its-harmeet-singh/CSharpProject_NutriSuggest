@@ -1,0 +1,59 @@
+﻿@model List<NutriSuggest.Models.CookBookRecipe>
+
+@{
+    ViewData["Title"] = "CookBook";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #e4efe9);
+    }
+</style>
+<div class="container py-5">
+    <h2 class="text-primary mb-4 text-center">🍳 Share Your Own Recipe</h2>
+
+    <form asp-action="Add" method="post" class="card shadow p-4 mb-5">
+        <div class="mb-3">
+            <label class="form-label">Recipe Title</label>
+            <input type="text" name="title" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Ingredients (comma-separated)</label>
+            <input type="text" name="ingredients" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Instructions (optional)</label>
+            <textarea name="instructions" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">📤 Submit Recipe</button>
+    </form>
+
+    <h3 class="text-secondary mb-3">📚 Community CookBook</h3>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var r in Model)
+        {
+            <div class="col">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">@r.Title</h5>
+                        <p><strong>Ingredients:</strong> @r.Ingredients</p>
+                        @if (!string.IsNullOrEmpty(r.Instructions))
+                        {
+                            <p><strong>Instructions:</strong></p>
+                            <ul class="mb-2">
+                                @foreach (var step in r.Instructions.Split("\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    <li>@step.Trim()</li>
+                                }
+                            </ul>
+                        }
+
+                        <p class="text-muted mb-0">
+                            <small>By: @r.AuthorEmail • @r.CreatedAt.ToLocalTime().ToString("f")</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

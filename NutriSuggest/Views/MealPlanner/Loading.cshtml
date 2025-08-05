@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Preparing Your Recipes";
+    Layout = "_Layout";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #e4efe9);
+    }
+</style>
+
+<div class="container text-center py-5">
+    <img src="/images/chef-cooking.gif" alt="Cooking..." style="width:200px; height:auto;" />
+    <h2 class="mt-3 text-muted">Our chef is busy preparing your recipe... 🍳</h2>
+    <p>Please hold on, the magic is happening!</p>
+</div>
+
+<script>
+    setTimeout(function () {
+        window.location.href = "@ViewBag.RedirectUrl";
+    }, 3000); 
+</script>

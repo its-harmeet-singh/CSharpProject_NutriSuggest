@@ -1,64 +1,96 @@
 ﻿@page
-@model NutriSuggest.Areas.Identity.Pages.Account.LoginModel
+@model LoginModel
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Login - NutriSuggest";
 }
 
-<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card p-4 shadow-sm" style="max-width: 400px; width:100%;">
-        <h2 class="card-title mb-4 text-center">Welcome Back</h2>
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #e4efe9);
+    }
 
-        <form method="post" novalidate>
-            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    .login-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
+        animation: fadeIn 0.6s ease-in-out;
+    }
 
-            <div class="mb-3">
-                <label asp-for="Input.Email" class="form-label">Email address</label>
-                <input asp-for="Input.Email"
-                       class="form-control form-control-lg"
-                       placeholder="you@example.com" />
+    .brand-logo {
+        height: 60px;
+        margin-bottom: 1rem;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 0.75rem;
+    }
+
+    .btn-custom {
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-size: 1.1rem;
+        background-color: #28a745;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-custom:hover {
+            background-color: #218838;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="login-card" style="max-width: 400px; width: 100%;">
+        <div class="text-center">
+            <img src="/images/logo.png" alt="NutriSuggest" class="brand-logo" />
+            <h3 class="fw-bold text-primary">Welcome Back</h3>
+            <p class="text-muted">Sign in to continue your meal planning journey</p>
+        </div>
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" placeholder="you@example.com" />
+                <label asp-for="Input.Email"></label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Input.Password" class="form-label">Password</label>
-                <input asp-for="Input.Password"
-                       class="form-control form-control-lg"
-                       placeholder="••••••••" />
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="Password" />
+                <label asp-for="Input.Password"></label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
 
             <div class="form-check mb-3">
                 <input asp-for="Input.RememberMe" class="form-check-input" />
-                <label asp-for="Input.RememberMe" class="form-check-label">
-                    Remember me
-                </label>
+                <label asp-for="Input.RememberMe" class="form-check-label"></label>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg w-100">
-                Log in
-            </button>
+            <button type="submit" class="btn btn-success btn-lg w-100 rounded-3 shadow-sm">🚀 Log In</button>
 
             <div class="d-flex justify-content-between mt-3">
-                <a asp-page="./ForgotPassword" class="small">Forgot password?</a>
-                <a asp-page="./Register" class="small">Create account</a>
+                <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none">Forgot password?</a>
+                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none">Create account</a>
             </div>
         </form>
     </div>
 </div>
 
-@section Styles {
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .card {
-            border: none;
-            border-radius: .5rem;
-        }
-
-        .card-title {
-            font-weight: 500;
-        }
-    </style>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
